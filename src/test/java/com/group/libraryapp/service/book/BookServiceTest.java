@@ -102,6 +102,27 @@ class BookServiceTest {
     }
 
     @Test
+    @DisplayName("도서 반납 테스트")
+    void testReturnBook(){
+        // given
+        BookReturnRequest request = new BookReturnRequest(USER_NAME, BOOK_NAME);
+        User user = User.builder()
+                .age(33)
+                .name(USER_NAME)
+                .build();
+        userRepository.save(user);
+        userLoanHistoryRepository.save(new UserLoanHistory(user, BOOK_NAME, false));
+
+        // when
+        bookService.returnBook(request);
+
+        // then
+        List<UserLoanHistory> results = userLoanHistoryRepository.findAll();
+        assertThat(results.get(0).getBookName()).isEqualTo(BOOK_NAME);
+        assertThat(results.get(0).isReturn()).isTrue();
+    }
+
+    @Test
     @Disabled
     @DisplayName("mocking & stubbing 도서 대출기능 테스트")
     void testLoanBookWithMockingAndStubbing() {
@@ -126,26 +147,5 @@ class BookServiceTest {
 
         // then
         assertThat(userLoanHistoryRepository.findAll().get(0).getBookName()).isEqualTo(BOOK_NAME);
-    }
-
-    @Test
-    @DisplayName("도서 반납 테스트")
-    void testReturnBook(){
-        // given
-        BookReturnRequest request = new BookReturnRequest(USER_NAME, BOOK_NAME);
-        User user = User.builder()
-                .age(33)
-                .name(USER_NAME)
-                .build();
-        userRepository.save(user);
-        userLoanHistoryRepository.save(new UserLoanHistory(user, BOOK_NAME, false));
-
-        // when
-        bookService.returnBook(request);
-
-        // then
-        List<UserLoanHistory> results = userLoanHistoryRepository.findAll();
-        assertThat(results.get(0).getBookName()).isEqualTo(BOOK_NAME);
-        assertThat(results.get(0).isReturn()).isTrue();
     }
 }
